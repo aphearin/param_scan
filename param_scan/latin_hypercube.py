@@ -88,3 +88,43 @@ def latin_hypercube_from_cov(mu, cov, sig, num_evaluations):
     lhs_box = latin_hypercube(param_bounds, num_evaluations)
     T = _get_eigenbasis_transform(cov)
     return lhs_box.dot(T) + mu
+
+
+def uniform_random_hypercube(param_bounds, num_evaluations, seed=None):
+    """Generate a uniform random sampling oriented with the Cartesian axes.
+
+    Parameters
+    ----------
+    param_bounds : n_dim-length sequence of 2-element tuples
+        Each entry of param_bounds (min, max) specifies the bounds in each dimension
+
+    num_evaluations : int
+        Number of points in sample
+
+    seed : int, optional
+        Random number seed
+
+    Returns
+    -------
+    sample : ndarray, shape(num_evaluations, n_dim)
+        Uniform random sampling of a hypercube
+
+    """
+
+    param_bounds = np.atleast_2d(param_bounds)
+    assert param_bounds.shape[1] == 2, shape_errmsg
+    _dx = np.diff(param_bounds, axis=1)
+    assert np.all(_dx > 0), minmax_errmsg
+    num_params = param_bounds.shape[0]
+
+    unit_hypercube = np.random.uniform(0, 1, num_params * num_evaluations)
+    unit_hypercube = unit_hypercube.reshape((num_evaluations, num_params))
+
+    xmins = param_bounds[:, 0]
+    xmaxs = param_bounds[:, 1]
+
+    params = np.zeros_like(unit_hypercube)
+    for i in range(num_params):
+        xmin, xmax = xmins[i], xmaxs[i]
+        params[:, i] = xmin + (xmax - xmin) * unit_hypercube[:, i]
+    return params

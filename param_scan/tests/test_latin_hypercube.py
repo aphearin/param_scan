@@ -2,6 +2,16 @@
 """
 import numpy as np
 from ..latin_hypercube import latin_hypercube, latin_hypercube_from_cov
+from ..latin_hypercube import uniform_random_hypercube
+
+
+def test_uniform_random_hypercube():
+    param_bounds = [(-3, 2), (-2, 3), (0, 5)]
+    npts = 5000
+    lhs_box = uniform_random_hypercube(param_bounds, npts)
+    for idim in range(len(param_bounds)):
+        assert np.all(lhs_box[:, idim] >= param_bounds[idim][0])
+        assert np.all(lhs_box[:, idim] <= param_bounds[idim][1])
 
 
 def test_latin_hypercube1():
