@@ -24,3 +24,15 @@ def get_rank_outname(fn, rank, batch):
     drn = os.path.dirname(fn)
     rank_outname = os.path.join(drn, bn)
     return rank_outname
+
+
+def get_equal_sized_data_chunks(n_tot, n_ranks, n_cube_max):
+    """"""
+    n_per_rank = max(1, n_tot // n_ranks)
+    n_cubes, remainder = divmod(n_per_rank, n_cube_max)
+    if n_cubes == 0:
+        n_cubes = 1
+        n_per_cube = remainder
+    else:
+        n_per_cube = n_cube_max
+    return n_cubes, n_per_cube
