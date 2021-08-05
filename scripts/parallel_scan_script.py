@@ -46,10 +46,10 @@ if __name__ == "__main__":
 
     comm = MPI.COMM_WORLD
     rank, nranks = comm.Get_rank(), comm.Get_size()
+    msg = "outname = {0} must conclude with `.dat`"
+    assert outname[-4:] == ".dat", msg.format(outname)
 
     if rank == 0:
-        msg = "outname = {0} must conclude with `.dat`"
-        assert outname[-4:] == ".dat", msg.format(outname)
         print("...running parallel parameter scan and writing to `{}`".format(outname))
 
     n_cubes_per_rank, n_per_chunk = get_equal_sized_data_chunks(n_tot, nranks, n_max_lh)
