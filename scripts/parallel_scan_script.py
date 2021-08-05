@@ -68,6 +68,7 @@ if __name__ == "__main__":
         write_param_chunk(rank_outname, param_chunk, np.array(loss_collector))
         comm.Barrier()
 
+    comm.Barrier()
     if rank == 0:
         print("Writing collated data to `{0}`".format(outname))
         cleanup_and_collate(outname)
