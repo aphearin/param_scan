@@ -5,7 +5,7 @@ from ..latin_hypercube import latin_hypercube, latin_hypercube_from_cov
 from ..latin_hypercube import uniform_random_hypercube
 
 
-def test_uniform_random_hypercube():
+def test_uniform_random_hypercube_respects_bounds():
     param_bounds = [(-3, 2), (-2, 3), (0, 5)]
     npts = 5000
     lhs_box = uniform_random_hypercube(param_bounds, npts)
@@ -14,7 +14,27 @@ def test_uniform_random_hypercube():
         assert np.all(lhs_box[:, idim] <= param_bounds[idim][1])
 
 
-def test_latin_hypercube1():
+def test_uniform_random_hypercube_is_reproducible():
+    param_bounds = [(-3, 2), (-2, 3), (0, 5)]
+    npts = 5000
+    lhs_box = uniform_random_hypercube(param_bounds, npts, seed=0)
+    lhs_box1 = uniform_random_hypercube(param_bounds, npts, seed=0)
+    lhs_box2 = uniform_random_hypercube(param_bounds, npts, seed=2)
+    assert np.allclose(lhs_box, lhs_box1)
+    assert not np.allclose(lhs_box, lhs_box2)
+
+
+def test_latin_hypercube_is_reproducible():
+    param_bounds = [(-3, 2), (-2, 3), (0, 5)]
+    npts = 5000
+    lhs_box = latin_hypercube(param_bounds, npts, seed=0)
+    lhs_box1 = latin_hypercube(param_bounds, npts, seed=0)
+    lhs_box2 = latin_hypercube(param_bounds, npts, seed=2)
+    assert np.allclose(lhs_box, lhs_box1)
+    assert not np.allclose(lhs_box, lhs_box2)
+
+
+def test_latin_hypercube_respects_bounds():
     param_bounds = [(-3, 2), (-2, 3), (0, 5)]
     npts = 5000
     lhs_box = latin_hypercube(param_bounds, npts)

@@ -117,7 +117,8 @@ def uniform_random_hypercube(param_bounds, num_evaluations, seed=None):
     assert np.all(_dx > 0), minmax_errmsg
     num_params = param_bounds.shape[0]
 
-    unit_hypercube = np.random.uniform(0, 1, num_params * num_evaluations)
+    rng = np.random.RandomState(seed)
+    unit_hypercube = rng.uniform(0, 1, num_params * num_evaluations)
     unit_hypercube = unit_hypercube.reshape((num_evaluations, num_params))
 
     xmins = param_bounds[:, 0]
