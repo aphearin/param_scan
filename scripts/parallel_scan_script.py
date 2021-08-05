@@ -9,19 +9,19 @@ from param_scan.helpers import get_mpi_rank_outname, write_param_chunk
 
 
 def get_param_bounds():
-    raise NotImplementedError()
+    return [(-5, 5), (5, 10)]
 
 
 def get_param_names():
-    raise NotImplementedError()
+    return ("param_a", "param_b")
 
 
 def compute_loss(params, data):
-    raise NotImplementedError()
+    return -1.0
 
 
 def get_loss_data():
-    raise NotImplementedError()
+    return None
 
 
 PARAM_BOUNDS = get_param_bounds()
