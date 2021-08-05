@@ -1,22 +1,18 @@
 """
 """
-import os
 import argparse
 from mpi4py import MPI
 import numpy as np
-from glob import glob
 from param_scan.latin_hypercube import latin_hypercube
+from param_scan.helpers import get_equal_sized_data_chunks, cleanup_and_collate
+from param_scan.helpers import get_mpi_rank_outname, write_param_chunk
 
 
 def get_param_bounds():
     raise NotImplementedError()
 
 
-def get_header():
-    raise NotImplementedError()
-
-
-def get_outline(params, loss, rank):
+def get_param_names():
     raise NotImplementedError()
 
 
@@ -24,15 +20,11 @@ def compute_loss(params, data):
     raise NotImplementedError()
 
 
-def cleanup(outname):
-    drn = os.path.dirname(outname)
-    bpat = _get_outbase_pattern(outname)
-    fnpat = os.path.join(drn, bpat)
-    rank_fnames = glob(fnpat)
+def get_loss_data():
+    raise NotImplementedError()
 
 
 PARAM_BOUNDS = get_param_bounds()
-HEADER = get_header()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -52,20 +44,20 @@ if __name__ == "__main__":
     comm = MPI.COMM_WORLD
     rank, nranks = comm.Get_rank(), comm.Get_size()
 
-    n_cubes_per_rank, n_per_cube = get_equal_sized_cubes(n_tot, nranks, n_max_lh)
+    n_cubes_per_rank, n_per_chunk = get_equal_sized_data_chunks(n_tot, nranks, n_max_lh)
     total_cubes = n_cubes_per_rank * nranks
     total_seeds = np.arange(total_cubes).astype("i8")
     seeds_per_rank = np.array_split(total_seeds, nranks)[rank]
 
-    rank_outname = _get_rank_outname(outname, rank)
-    with open(rank_outname, "w") as fout:
-        fout.write(HEADER)
+    for ichunk, seed in enumerate(seeds_per_rank):
+        param_chunk = latin_hypercube(PARAM_BOUNDS, n_per_chunk, seed=seed)
+        loss_data = get_loss_data()
+        rank_outname = get_mpi_rank_outname(outname, rank, ichunk)
+        loss_collector = []
+        for params in param_chunk:
+            loss = compute_loss(params, loss_data)
+            loss_collector.append(loss)
+        write_param_chunk(rank_outname, param_chunk, np.array(loss_collector))
 
-        for seed in seeds_per_rank:
-            cube_params = latin_hypercube(PARAM_BOUNDS, n_per_cube, seed=seed)
-            for params in cube_params:
-                loss = compute_loss(params, loss_data)
-                outline = get_outline(params, loss, rank)
-                fout.write(outline)
     if rank == 0:
-        cleanup(outname)
+        cleanup_and_collate(outname)

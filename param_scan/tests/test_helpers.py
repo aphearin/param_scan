@@ -2,7 +2,7 @@
 """
 import os
 import numpy as np
-from ..helpers import get_parallel_outbase_pattern, get_rank_outname
+from ..helpers import get_parallel_outbase_pattern, get_mpi_rank_outname
 from ..helpers import get_equal_sized_data_chunks
 
 
@@ -17,10 +17,10 @@ def test_get_parallel_outbase_pattern():
 
 
 def test_get_rank_outname():
-    rank_outname = get_rank_outname(DUMMY_FNAME, 0, 0)
+    rank_outname = get_mpi_rank_outname(DUMMY_FNAME, 0, 0)
     assert rank_outname == os.path.join(_THIS_DRNAME, "dummy.0.0.ext")
 
-    rank_outname = get_rank_outname(DUMMY_FNAME, 50, 34440)
+    rank_outname = get_mpi_rank_outname(DUMMY_FNAME, 50, 34440)
     assert rank_outname == os.path.join(_THIS_DRNAME, "dummy.50.34440.ext")
 
 
