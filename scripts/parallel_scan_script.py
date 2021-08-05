@@ -73,6 +73,8 @@ if __name__ == "__main__":
     comm.Barrier()
     if rank == 0:
         end = time()
-        print("Writing collated data to `{0}`".format(outname))
-        print("Total wall-clock time = {0:1f} seconds".format(end - start))
+        runtime = end - start
+        print("\n...writing collated data to `{0}`".format(outname))
+        msg = "For {0} total points with {1} ranks, wall-clock time = {2:.1f} seconds\n"
+        print(msg.format(n_tot, nranks, runtime))
         cleanup_and_collate(outname)
