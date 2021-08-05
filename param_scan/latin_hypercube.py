@@ -1,6 +1,5 @@
 """Use scipy.stats.qmc to generate latin hypercube samples."""
 import numpy as np
-from scipy.stats.qmc import LatinHypercube
 
 shape_errmsg = "param_bounds must have shape (num_params, 2)"
 minmax_errmsg = "All (min, max) entries of param_bounds must have min < max"
@@ -26,6 +25,8 @@ def latin_hypercube(param_bounds, num_evaluations, seed=None):
         Latin hypercube centered on zero
 
     """
+    from scipy.stats.qmc import LatinHypercube
+
     param_bounds = np.atleast_2d(param_bounds)
     assert param_bounds.shape[1] == 2, shape_errmsg
     _dx = np.diff(param_bounds, axis=1)
