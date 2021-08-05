@@ -1,5 +1,4 @@
-"""
-"""
+"""mpiexec -n 2 python parallel_scan_script.py outname n_pts"""
 import argparse
 from mpi4py import MPI
 import numpy as np
@@ -29,7 +28,9 @@ PARAM_BOUNDS = get_param_bounds()
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("outname", help="Name of the output file")
-    parser.add_argument("n_tot", help="Total number of points in the param scan")
+    parser.add_argument(
+        "n_tot", help="Total number of points in the param scan", type=int
+    )
     parser.add_argument(
         "-n_max_lh",
         help="Maximum number of points in each Latin Hypercube",
@@ -58,6 +59,8 @@ if __name__ == "__main__":
             loss = compute_loss(params, loss_data)
             loss_collector.append(loss)
         write_param_chunk(rank_outname, param_chunk, np.array(loss_collector))
+        comm.Barrier()
 
     if rank == 0:
+        print("Writing collated data to `{0}`".format(outname))
         cleanup_and_collate(outname)
