@@ -3,6 +3,7 @@
 import os
 import numpy as np
 from glob import glob
+from subprocess import check_output, CalledProcessError
 
 
 def get_parallel_outbase_pattern(fn):
@@ -56,6 +57,21 @@ def write_param_chunk(outname, param_chunk, loss_arr):
 
 def cleanup_and_collate(outname):
     drn = os.path.dirname(outname)
-    bpat = get_parallel_outbase_pattern(outname)
+    _bnpat = get_parallel_outbase_pattern(outname)
+    i = _bnpat.find("*")
+    j = _bnpat.find("*", i + 1)
+    bpat = _bnpat[: j + 1]
     fnpat = os.path.join(drn, bpat)
     rank_fnames = glob(fnpat)
+    collector = []
+    for rank_fname in rank_fnames:
+        collector.append(np.load(rank_fname))
+    results = np.concatenate(collector)
+    np.save(outname, results)
+
+    for fn in rank_fnames:
+        command = "rm " + fn
+        try:
+            check_output(command, shell=True)
+        except CalledProcessError:
+            pass
