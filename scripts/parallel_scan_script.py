@@ -1,5 +1,6 @@
 """mpiexec -n 2 python parallel_scan_script.py outname n_pts"""
 import argparse
+from time import time
 from mpi4py import MPI
 import numpy as np
 from param_scan.latin_hypercube import latin_hypercube
@@ -57,6 +58,7 @@ if __name__ == "__main__":
     total_seeds = np.arange(total_cubes).astype("i8")
     seeds_per_rank = np.array_split(total_seeds, nranks)[rank]
 
+    start = time()
     for ichunk, seed in enumerate(seeds_per_rank):
         param_chunk = latin_hypercube(PARAM_BOUNDS, n_per_chunk, seed=seed)
         loss_data = get_loss_data()
@@ -70,5 +72,7 @@ if __name__ == "__main__":
 
     comm.Barrier()
     if rank == 0:
+        end = time()
         print("Writing collated data to `{0}`".format(outname))
+        print("Total wall-clock time = {0:1f} seconds".format(end - start))
         cleanup_and_collate(outname)
