@@ -5,6 +5,43 @@ shape_errmsg = "param_bounds must have shape (num_params, 2)"
 minmax_errmsg = "All (min, max) entries of param_bounds must have min < max"
 
 
+def latin_hypercube_pydoe(param_bounds, num_evaluations, seed=None):
+    """Generate a latin hypercube oriented with the Cartesian axes.
+
+    Parameters
+    ----------
+    param_bounds : n_dim-length sequence of 2-element tuples
+        Each entry of param_bounds (min, max) specifies the bounds in each dimension
+
+    num_evaluations : int
+        Number of points in sample
+
+    Returns
+    -------
+    sample : ndarray, shape(num_evaluations, n_dim)
+        Latin hypercube centered on zero
+
+    """
+    from pyDOE2 import lhs
+
+    param_bounds = np.atleast_2d(param_bounds)
+    assert param_bounds.shape[1] == 2, shape_errmsg
+    _dx = np.diff(param_bounds, axis=1)
+    assert np.all(_dx > 0), minmax_errmsg
+    num_params = param_bounds.shape[0]
+
+    rng = np.random.RandomState(seed)
+    unit_hypercube = lhs(num_params, samples=num_evaluations, random_state=rng)
+    xmins = param_bounds[:, 0]
+    xmaxs = param_bounds[:, 1]
+
+    params = np.zeros_like(unit_hypercube)
+    for i in range(num_params):
+        xmin, xmax = xmins[i], xmaxs[i]
+        params[:, i] = xmin + (xmax - xmin) * unit_hypercube[:, i]
+    return params
+
+
 def latin_hypercube(param_bounds, num_evaluations, seed=None):
     """Generate a latin hypercube oriented with the Cartesian axes.
 
