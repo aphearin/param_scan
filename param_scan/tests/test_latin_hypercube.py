@@ -33,6 +33,16 @@ def test_uniform_random_hypercube_is_reproducible():
     assert not np.allclose(lhs_box, lhs_box2)
 
 
+def test_latin_hypercube_pydoe_is_reproducible():
+    param_bounds = [(-3, 2), (-2, 3), (0, 5)]
+    npts = 5000
+    lhs_box = latin_hypercube_pydoe(param_bounds, npts, seed=0)
+    lhs_box1 = latin_hypercube_pydoe(param_bounds, npts, seed=0)
+    lhs_box2 = latin_hypercube_pydoe(param_bounds, npts, seed=2)
+    assert np.allclose(lhs_box, lhs_box1)
+    assert not np.allclose(lhs_box, lhs_box2)
+
+
 def test_latin_hypercube_is_reproducible():
     param_bounds = [(-3, 2), (-2, 3), (0, 5)]
     npts = 5000
